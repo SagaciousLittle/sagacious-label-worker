@@ -1,0 +1,54 @@
+{
+  "name": "@sagacious/label-worker",
+  "version": "0.0.1",
+  "description": "dDeveloping templates for npm package",
+  "scripts": {
+    "start": "rollup -wc",
+    "build": "npm run clear && rollup -c",
+    "test": "jest",
+    "clear": "rimraf dist lib types",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "template",
+    "package",
+    "toolkit",
+    "sagacious"
+  ],
+  "main": "./dist/index.js",
+  "types": "types",
+  "author": {
+    "name": "SagaciousLittle",
+    "email": "guoxiaozhuang4@outlook.com"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@sagacious/fs-wrapper": "^0.0.4",
+    "@types/jest": "^25.1.4",
+    "@types/lodash-es": "^4.17.3",
+    "@typescript-eslint/parser": "^2.25.0",
+    "eslint": "^6.8.0",
+    "eslint-config-sagas": "^0.0.6",
+    "jest": "^25.1.0",
+    "konva": "^4.2.2",
+    "lodash-es": "^4.17.15",
+    "rimraf": "^3.0.0",
+    "rollup": "^2.2.0",
+    "rollup-plugin-delete": "^1.1.0",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-ts": "^1.2.14",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SagaciousLittle/sagacious-template-package.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SagaciousLittle/sagacious-template-package/issues"
+  },
+  "homepage": "https://github.com/SagaciousLittle/sagacious-template-package#readme"
+}
