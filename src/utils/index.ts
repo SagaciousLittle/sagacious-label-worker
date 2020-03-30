@@ -1,13 +1,16 @@
 export function loadImg (imgPath?: any): Promise<HTMLImageElement> {
   const res = new Image()
   if (typeof imgPath === 'string') {
-    res.onload = function () {
-      return new Promise(r => r(res))
-    }
-    res.onerror = function () {
-      return new Promise(r => r(res))
-    }
-    res.src = imgPath
+    return new Promise(r => {
+      res.onload = function () {
+        r(res)
+      }
+      res.onerror = function () {
+        r(res)
+      }
+      res.src = imgPath
+    })
+  } else {
+    return Promise.resolve(res)
   }
-  return Promise.resolve(res)
 }
