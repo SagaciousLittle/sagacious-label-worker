@@ -7,11 +7,14 @@ import {
   loadImg, 
 } from './utils'
 import {
-  ImageConfig, 
+  ImageConfig,
 } from 'konva/types/shapes/Image'
 import {
-  merge, 
+  merge,
 } from 'lodash-es'
+import {
+  BigNumber,
+} from 'bignumber.js'
 
 export default class Table {
   $native: Native = {}
@@ -30,25 +33,43 @@ export default class Table {
       width,
       height,
     } = container.getBoundingClientRect()
-    this.$native.stage = new konva.Stage(merge({
+    // 初始化table，包含背景层 + 背景图
+    const stage = new konva.Stage(merge({
       width,
       height,
     }, config))
     const layer = new konva.Layer({
       name: 'static',
     })
-    this.$native.stage.add(layer)
+    this.$native.stage = stage
+    stage.add(layer)
     if (!config.bkg) return
-    const image = await loadImg(config.bkg.image)
-    const bkg = new konva.Image({
-      image,
+    config.bkg.image = await loadImg(config.bkg.image)
+    const bkg = new konva.Image(merge<ImageConfig, ImageConfig>({
+      image: undefined,
       x: 0,
       y: 0,
       width,
       height,
-    })
+      draggable: true,
+    }, config.bkg))
     layer.add(bkg)
     layer.draw()
+    // 初始化缩放功能
+    let s = new BigNumber(1)
+    stage.on('wheel', ({ evt }) => {
+      if (evt.deltaY > 0) {
+        s = s.times(1.1)
+      } else if (+s.valueOf() > 0.02) {
+        s = s.div(1.1)
+      }
+      console.log(s.valueOf())
+      stage.scale({
+        x: +s.valueOf(),
+        y: +s.valueOf(),
+      })
+      stage.draw()
+    })
   }
 }
 

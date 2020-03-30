@@ -1,12 +1,9 @@
 import Table from './Table'
-import konva from 'konva'
 
 export {
-  Table,
-  konva
+  Table
 }
 
 export default {
   Table,
-  konva,
 }
