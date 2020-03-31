@@ -15,6 +15,7 @@ import {
 import {
   BigNumber,
 } from 'bignumber.js'
+import Scale from './utils/Scale'
 
 export default class Table {
   $native: Native = {}
@@ -56,17 +57,28 @@ export default class Table {
     layer.add(bkg)
     layer.draw()
     // 初始化缩放功能
-    let s = new BigNumber(1)
+    const scale = new Scale()
+    const position = stage.position()
+    stage.on('click', ({ evt }) => {
+      console.log(evt.offsetX, evt.offsetY, scale.val())
+    })
     stage.on('wheel', ({ evt }) => {
-      if (evt.deltaY > 0) {
-        s = s.times(1.1)
-      } else if (+s.valueOf() > 0.02) {
-        s = s.div(1.1)
+      stage.position({
+        x: evt.offsetX,
+        y: evt.offsetY,
+      })
+      stage.offset({
+        x: evt.offsetX,
+        y: evt.offsetY,
+      })
+      if (evt.deltaY < 0) {
+        scale.add()
+      } else {
+        scale.subtract()
       }
-      console.log(s.valueOf())
       stage.scale({
-        x: +s.valueOf(),
-        y: +s.valueOf(),
+        x: scale.val(),
+        y: scale.val(),
       })
       stage.draw()
     })
