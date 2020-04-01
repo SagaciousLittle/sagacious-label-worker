@@ -12,9 +12,6 @@ import {
 import {
   merge,
 } from 'lodash-es'
-import {
-  BigNumber,
-} from 'bignumber.js'
 import Scale from './utils/Scale'
 
 export default class Table {
@@ -56,31 +53,27 @@ export default class Table {
     }, config.bkg))
     layer.add(bkg)
     layer.draw()
-    // 初始化缩放功能
+    // 初始化事件
+    this.initEvent()
+  }
+  private initEvent () {
+    const stage = this.$native.stage!
+    // 缩放
     const scale = new Scale()
-    const position = stage.position()
-    stage.on('click', ({ evt }) => {
-      console.log(evt.offsetX, evt.offsetY, scale.val())
-    })
     stage.on('wheel', ({ evt }) => {
-      stage.position({
-        x: evt.offsetX,
-        y: evt.offsetY,
-      })
-      stage.offset({
-        x: evt.offsetX,
-        y: evt.offsetY,
-      })
-      if (evt.deltaY < 0) {
-        scale.add()
-      } else {
-        scale.subtract()
+      evt.preventDefault()
+      let factor = 0
+      if (evt.deltaY < 0) factor = scale.add()
+      else factor = scale.subtract()
+      if (!factor) return
+      const { x, y } = stage.getPointerPosition() || { x: 0, y: 0 }
+      const position = {
+        x: stage.x() + (x - stage.x()) * (1 - factor),
+        y: stage.y() + (y - stage.y()) * (1 - factor),
       }
-      stage.scale({
-        x: scale.val(),
-        y: scale.val(),
-      })
-      stage.draw()
+      stage.scale({ x: scale.val(), y: scale.val() })
+      stage.position(position)
+      stage.batchDraw()
     })
   }
 }
