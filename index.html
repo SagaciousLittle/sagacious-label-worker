@@ -17,18 +17,29 @@
   <div id="app">
 
   </div>
+  <button type="button" onclick="off()">off</button>
   <script src="./dist/index.js"></script>
   <script>
     const {
       Table,
       konva,
     } = LabelWorker
-	new Table({
-    container: '#app',
-    bkg: {
-      image: './logo.png',
+    const table = new Table({
+      container: '#app',
+      bkg: {
+        image: './logo.png',
+      }
+    })
+    table.$native.stage.on('click.foo', e => {
+      console.log(e)
+    })
+	const f = e => {
+      console.log(e)
     }
-	})
+    table.$native.stage.on('click', f)
+	function off () {
+		table.$native.stage.off('click', [f])
+	}
   </script>
 </body>
 

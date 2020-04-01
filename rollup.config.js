@@ -7,57 +7,57 @@ const reslove = require('@rollup/plugin-node-resolve')
 const cjs = require('@rollup/plugin-commonjs')
 const path = require('path')
 
-const libOptions = fs.readDirProSync(path.resolve(__dirname, './src'), {
+const input = fs.readDirProSync(path.resolve(__dirname, './src'), {
   deep: true,
   withFileTypes: true,
 })
-  .filter(f => /\.ts$/.test(f.absolutePath) && !/index\.ts$/.test(f.absolutePath))
-  .map(({ absolutePath, name }) => {
-    const targetName = `${name.replace(/\.ts$/, '')}.js`
-    return {
-      input: absolutePath,
-      output: {
-        file: `./lib/${targetName}`,
-        format: 'cjs',
-      },
-      plugins: [
-        del({
-          targets: `./lib/${targetName}`,
-        }),
-        json(),
-        reslove(),
-        cjs(),
-        eslint({
-          fix: true,
-        }),
-        ts({
-          module: 'CommonJS',
-        }),
-      ],
-    }
-  })
+  .reduce((res, { absolutePath, name }) => {
+    if (/\.ts$/.test(name)) res[name.replace(/\.ts$/, '')] = absolutePath
+    return res
+  }, {})
+
+const plugins = [
+  json(),
+  reslove(),
+  cjs(),
+  eslint({
+    fix: true,
+  }),
+  ts(),
+]
 
 module.exports = [
   {
+    input,
+    output: [
+      {
+        dir: 'cjs',
+        format: 'cjs',
+        exports: 'named',
+      },
+      {
+        dir: 'esm',
+        format: 'esm',
+      },
+    ],
+    plugins: [
+      del({
+        targets: ['cjs/*', 'esm/*', 'types/*'],
+      }),
+    ].concat(plugins),
+  },
+  {
     input: './src/index.ts',
     output: {
-      file: './dist/index.js',
+      dir: 'umd',
       name: 'LabelWorker',
       format: 'umd',
       exports: 'named',
     },
     plugins: [
       del({
-        targets: './dist/*',
+        targets: ['umd/*'],
       }),
-      json(),
-      reslove(),
-      cjs(),
-      eslint({
-        fix: true,
-      }),
-      ts(),
-    ],
+    ].concat(plugins),
   },
-  ...libOptions,
 ]

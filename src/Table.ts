@@ -5,7 +5,7 @@ import {
 } from 'konva/types/Stage'
 import {
   loadImg, 
-} from './utils'
+} from './utils/Function'
 import {
   ImageConfig,
 } from 'konva/types/shapes/Image'

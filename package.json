@@ -4,9 +4,8 @@
   "description": "dDeveloping templates for npm package",
   "scripts": {
     "start": "rollup -wc",
-    "build": "npm run clear && rollup -c",
+    "build": "rollup -c",
     "test": "jest",
-    "clear": "rimraf dist lib types",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -15,12 +14,19 @@
     "toolkit",
     "sagacious"
   ],
-  "main": "./dist/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "types": "types",
   "author": {
     "name": "SagaciousLittle",
     "email": "guoxiaozhuang4@outlook.com"
   },
+  "files": [
+    "cjs/*",
+    "esm/*",
+    "umd/*",
+    "types/*"
+  ],
   "license": "ISC",
   "dependencies": {
     "@rollup/plugin-commonjs": "^11.0.2",
@@ -31,6 +37,7 @@
     "@types/lodash-es": "^4.17.3",
     "@typescript-eslint/parser": "^2.25.0",
     "bignumber.js": "^9.0.0",
+    "core-js": "^3.6.4",
     "eslint": "^6.8.0",
     "eslint-config-sagas": "^0.0.6",
     "jest": "^25.1.0",
