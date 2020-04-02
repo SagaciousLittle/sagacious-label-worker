@@ -17,14 +17,46 @@
   <div id="app">
 
   </div>
+  <button onclick="clone()">clone</button>
   <script src="./umd/index.js"></script>
+  <!-- <canvas id="canvas" width="1200" height="800"></canvas>
+  <script>
+	var canvas = document.getElementById('canvas');
+	if (canvas.getContext) {
+	  var ctx = canvas.getContext('2d');
+  
+	  ctx.beginPath();
+	  ctx.moveTo(75, 50);
+	  ctx.lineTo(100, 75);
+	  ctx.lineTo(100, 25);
+	  ctx.fill();
+  } -->
   <script>
     var table = new LabelWorker.Table({
       container: '#app',
-      bkg: {
-        image: './logo.png'
-      }
     })
+    const {stage} = table.$native
+    const layer = stage.children[0]
+    const shape = new LabelWorker.Wendy({
+      width: 10,
+      height: 10,
+      x: 0,
+      y: 0,
+      points: [[150, 100], [200, 150], [200, 50]],
+      stroke: 'red',
+      draggable: true,
+    })
+    shape.on('pointmousedown', function () {
+      console.log(arguments)
+    })
+    layer.add(shape)
+    layer.draw()
+    function clone () {
+      console.log(shape.getAttr('points'))
+      // const cloneShape = shape.clone()
+      // layer.add(cloneShape)
+      // layer.draw()
+    }
   </script>
 </body>
 

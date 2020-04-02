@@ -1,12 +1,15 @@
 import Table from './Table'
 import konva from 'konva'
+import Wendy from './shapes/Wendy'
 
 export {
   Table,
-  konva
+  konva,
+  Wendy
 }
 
 export default {
   Table,
   konva,
+  Wendy,
 }

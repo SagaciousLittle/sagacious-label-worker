@@ -58,6 +58,7 @@ export default class Table {
     }, config.bkg))
     layer.add(bkg)
     layer.draw()
+    this.initEvent()
   }
   private initEvent () {
     const { stage } = this.$native
