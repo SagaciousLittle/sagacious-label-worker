@@ -13,9 +13,14 @@ import {
   merge,
 } from 'lodash-es'
 import Scale from './utils/Scale'
+import EventManager, {
+  EventWrapNode, 
+} from './utils/EventManager'
 
 export default class Table {
-  $native: Native = {}
+  $native: Native = {
+    eventManager: EventManager,
+  }
   $brushes: Brush[] = []
   constructor (config: TableConfig) {
     this.init(config)
@@ -57,9 +62,10 @@ export default class Table {
   private initEvent () {
     const { stage } = this.$native
     if (!stage) return
+    const wrapperStage = new EventWrapNode(stage)
     // 缩放
     const scale = new Scale()
-    stage.on('wheel', ({ evt }) => {
+    wrapperStage.on('wheel', ({ evt }) => {
       evt.preventDefault()
       let factor = 0
       if (evt.deltaY < 0) factor = scale.add()
@@ -74,11 +80,13 @@ export default class Table {
       stage.position(position)
       stage.batchDraw()
     })
+    EventManager.regist(wrapperStage)
   }
 }
 
 interface Native {
   stage?: Stage
+  eventManager: typeof EventManager
 }
 
 interface TableConfig extends StageConfig {

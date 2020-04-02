@@ -1,9 +1,7 @@
 import {
   Node, KonvaEventListener,
 } from 'konva/types/Node'
-import {
-  nanoid,
-} from 'nanoid'
+import shortid from 'shortid'
 
 /**
  * 全局事件管理器
@@ -13,10 +11,17 @@ import {
  */
 export default class EventManager {
   static $groups: EventGroup[] = []
-  static register (...nodes: EventWrapNode[]) {
-    const group = new EventGroup(nodes)
+  static regist (...nodes: EventWrapNode[]) {
+    const group = new EventGroup(...nodes)
     this.$groups.push(group)
-    return group.id
+    return group
+  }
+  static unregist (...groups: EventGroup[]) {
+    this.$groups = this.$groups.filter(o => {
+      const f = groups.includes(o)
+      if (f) o.destroy(false)
+      return f
+    })
   }
   static get (gid: string) {
     return this.$groups.find(o => o.id === gid)
@@ -29,15 +34,29 @@ export default class EventManager {
  * @class EventGroup
  */
 class EventGroup {
-  id = nanoid()
-  constructor (public nodes: EventWrapNode[] = []) {
+  id = shortid.generate()
+  public nodes: EventWrapNode[] = []
+  constructor (...nodes: EventWrapNode[]) {
+    this.push(...nodes)
+  }
+  push (...nodes: EventWrapNode[]) {
+    this.nodes = [...new Set(this.nodes.concat(nodes))]
     nodes.forEach(o => o.init(this.id))
+  }
+  remove (...nodes: EventWrapNode[]) {
+    this.nodes = this.nodes.filter(o => {
+      const f = nodes.includes(o)
+      if (f) o.destroy(false)
+      return f
+    })
   }
   listener (listen: boolean) {
     this.nodes.forEach(n => n.listener(listen))
   }
-  destroy () {
+  destroy (removeFromManager = true) {
     this.nodes.forEach(n => n.destroy())
+    const group = EventManager.get(this.id)
+    if (removeFromManager && group) EventManager.unregist(this)
   }
 }
 
@@ -49,11 +68,11 @@ class EventGroup {
  */
 export class EventWrapNode {
   private $cache: Cache = {}
-  id = nanoid()
+  id = shortid.generate()
   private gid = ''
   private listen = true
   constructor (public node: Node) {}
-  on: Fn = (name, callback) => {
+  on: Fn = (name, callback: any) => {
     const _this = this
     this.$cache[name] = this.$cache[name] || []
     if (!this.$cache[name]!.includes(callback)) this.$cache[name]!.push(callback)
@@ -84,7 +103,7 @@ export class EventWrapNode {
       })
     }
   }
-  destroy () {
+  destroy (removeFromGroup = true) {
     for (let en in this.$cache) {
       const cbs = this.$cache[en as EventName]
       cbs?.forEach((cb: any) => {
@@ -92,6 +111,8 @@ export class EventWrapNode {
       })
     }
     this.$cache = {}
+    const group = EventManager.get(this.gid)
+    if (removeFromGroup && group) group.remove(this)
   }
   listener (listen: boolean) {
     this.listen = listen
@@ -100,7 +121,7 @@ export class EventWrapNode {
 
 type EventName = keyof GlobalEventHandlersEventMap
 
-type Fn = <K extends EventName>(evtStr: K, handler: KonvaEventListener<Node, GlobalEventHandlersEventMap[EventName]>) => EventWrapNode
+type Fn = <K extends EventName>(evtStr: K, handler: KonvaEventListener<Node, GlobalEventHandlersEventMap[K]>) => EventWrapNode
 
 type Cache = {
   [name in EventName]?: KonvaEventListener<Node, GlobalEventHandlersEventMap[name]>[]
