@@ -37,7 +37,7 @@ export default class Table {
       height,
     }, config))
     const layer = new konva.Layer({
-      name: 'static',
+      name: 'callout',
     })
     this.$native.stage = stage
     stage.add(layer)
@@ -53,11 +53,10 @@ export default class Table {
     }, config.bkg))
     layer.add(bkg)
     layer.draw()
-    // 初始化事件
-    this.initEvent()
   }
   private initEvent () {
-    const stage = this.$native.stage!
+    const { stage } = this.$native
+    if (!stage) return
     // 缩放
     const scale = new Scale()
     stage.on('wheel', ({ evt }) => {

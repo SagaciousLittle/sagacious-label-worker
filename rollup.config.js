@@ -18,11 +18,10 @@ const input = fs.readDirProSync(path.resolve(__dirname, './src'), {
 
 const plugins = [
   json(),
-  reslove(),
-  cjs(),
-  eslint({
-    fix: true,
+  reslove({
+    mainFields: ['browser', 'jsnext', 'module', 'main'],
   }),
+  cjs(),
   ts(),
 ]
 
@@ -43,6 +42,9 @@ module.exports = [
     plugins: [
       del({
         targets: ['cjs/*', 'esm/*', 'types/*'],
+      }),
+      eslint({
+        fix: true,
       }),
     ].concat(plugins),
   },

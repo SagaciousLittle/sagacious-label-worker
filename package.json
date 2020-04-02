@@ -43,6 +43,7 @@
     "jest": "^25.1.0",
     "konva": "^4.2.2",
     "lodash-es": "^4.17.15",
+    "nanoid": "^3.0.2",
     "rimraf": "^3.0.0",
     "rollup": "^2.2.0",
     "rollup-plugin-delete": "^1.1.0",
