@@ -22,8 +22,8 @@ export default class Wendy extends konva.Shape<Config> {
     if (this.attrs.closure) {
       const [[x, y]] = this.attrs.points
       ctx.lineTo(x, y)
+      ctx.closePath()
     }
-    ctx.closePath()
     this.attrs.points.forEach(([x, y]: Point) => {
       ctx.moveTo(x + 10, y)
       ctx.arc(x, y, 10, 0, Math.PI * 2, true)
@@ -35,24 +35,49 @@ export default class Wendy extends konva.Shape<Config> {
     return points.map((arr: number[]) => [arr[0] + x, arr[1] + y])
   }
   setPoints (points: Point[]) {
-    if (this.attrs.closure && this.attrs.points.length !== points.length) return console.log('已经闭合了')
+    if (this.attrs.closure && points.length !== this.attrs.points.length) return
     const { x, y } = this.attrs
     this.attrs.points = points.map(([px, py]) => [px - x, py - y])
   }
   init () {
     if (!(this.attrs.points instanceof Array)) this.attrs.points = []
+    // pointmousedown：是否点击某个点
     this.on('mousedown', ({ evt }) => {
-      console.log(123)
       const {
         offsetX,
         offsetY,
       } = evt
       const i = this.attrs.points.findIndex(([x, y]: Point) => isPointNearBy(offsetX, offsetY, x + this.getAttr('x'), y + this.getAttr('y')))
-      if (i > -1) this.fire('pointmousedown', {
+      if (i < 0) return
+      this.fire('pointmousedown', {
         points: this.getAttr('points'),
         i,
+        evt,
       })
     })
+    // pointmouseenter：是否进入某个点
+    // pointmouseleave：是否离开某个点
+    let inner = -1
+    let lastInner = -1
+    this.on('mousemove mouseenter mouseleave', ({ evt }) => {
+      const {
+        offsetX,
+        offsetY,
+      } = evt
+      const i = this.attrs.points.findIndex(([x, y]: Point) => isPointNearBy(offsetX, offsetY, x + this.getAttr('x'), y + this.getAttr('y')))
+      lastInner = inner
+      inner = i
+      if (lastInner === inner) return
+      this.fire(inner > -1 ? 'pointmouseenter' : 'pointmouseleave', {
+        points: this.getAttr('points'),
+        i: inner > -1 ? i : lastInner,
+        evt,
+      })
+    })
+
+  }
+  _fill (shape: any) {
+    console.log(shape)
   }
 }
 
@@ -61,6 +86,8 @@ interface Config extends ShapeConfig {
   pointStyle: {}
   // 是否闭合
   closure: boolean
+  // 选中点
+  activePoint: Point
 }
 
 type Point = [number, number]

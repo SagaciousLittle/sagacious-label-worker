@@ -17,20 +17,7 @@
   <div id="app">
 
   </div>
-  <button onclick="clone()">draw</button>
   <script src="./umd/index.js"></script>
-  <!-- <canvas id="canvas" width="1200" height="800"></canvas>
-  <script>
-	var canvas = document.getElementById('canvas');
-	if (canvas.getContext) {
-	  var ctx = canvas.getContext('2d');
-  
-	  ctx.beginPath();
-	  ctx.moveTo(75, 50);
-	  ctx.lineTo(100, 75);
-	  ctx.lineTo(100, 25);
-	  ctx.fill();
-  } -->
   <script>
     let canPaint = false
     let canDrag = false
@@ -38,11 +25,14 @@
       points: [],
       i: 0,
     }
-    let table = new LabelWorker.Table({
+    const {konva} = LabelWorker
+    let stage = new konva.Stage({
       container: '#app',
+      width: 1000,
+      height: 800,
     })
-    const {stage} = table.$native
-    const layer = stage.children[0]
+    const layer = new konva.Layer()
+    stage.add(layer)
     const shape = new LabelWorker.Wendy({
       width: 10,
       height: 10,
@@ -52,35 +42,38 @@
       stroke: 'blue',
       draggable: true,
     })
+    layer.add(shape)
+    layer.batchDraw()
     shape.on('pointmousedown', function (e) {
       canDrag = true
       dragTaget = e
       this.setAttr('draggable', false)
     })
+    shape.on('pointmouseenter pointmouseleave', function (e) {
+      console.log(e)
+    })
+    stage.on('mousedown', function () {
+      if (canDrag) {
+        shape.setAttr('closure', true)
+        layer.batchDraw()
+        return
+      }
+      const {x, y} = stage.getPointerPosition()
+      dragTaget.points.push([x, y])
+    })
     stage.on('mousemove', function () {
       if (!canDrag) return
-      const {x, y} = this.getPointerPosition()
+      const {x, y} = stage.getPointerPosition()
       dragTaget.points[dragTaget.i] = [x, y]
       shape.setAttr('points', dragTaget.points)
       layer.batchDraw()
     })
     stage.on('mouseup', function () {
-      const {x, y} = stage.getPointerPosition()
-      if (!canPaint) return
-      if (canDrag) {
-        canDrag = false
-        shape.setAttr('closure', true)
-        return layer.batchDraw()
-      }
       canDrag = false
-      shape.setAttr('points', [...shape.getAttr('points'), [x, y]])
+      shape.setAttr('points', dragTaget.points)
+      shape.setAttr('draggable', true)
       layer.batchDraw()
     })
-    layer.add(shape)
-    layer.batchDraw()
-    function clone () {
-      canPaint = !canPaint
-    }
   </script>
 </body>
 
