@@ -17,7 +17,7 @@
   <div id="app">
 
   </div>
-  <button onclick="clone()">clone</button>
+  <button onclick="clone()">draw</button>
   <script src="./umd/index.js"></script>
   <!-- <canvas id="canvas" width="1200" height="800"></canvas>
   <script>
@@ -32,7 +32,13 @@
 	  ctx.fill();
   } -->
   <script>
-    var table = new LabelWorker.Table({
+    let canPaint = false
+    let canDrag = false
+    let dragTaget = {
+      points: [],
+      i: 0,
+    }
+    let table = new LabelWorker.Table({
       container: '#app',
     })
     const {stage} = table.$native
@@ -42,20 +48,38 @@
       height: 10,
       x: 0,
       y: 0,
-      points: [[150, 100], [200, 150], [200, 50]],
-      stroke: 'red',
+      fill: 'red',
+      stroke: 'blue',
       draggable: true,
     })
-    shape.on('pointmousedown', function () {
-      console.log(arguments)
+    shape.on('pointmousedown', function (e) {
+      canDrag = true
+      dragTaget = e
+      this.setAttr('draggable', false)
+    })
+    stage.on('mousemove', function () {
+      if (!canDrag) return
+      const {x, y} = this.getPointerPosition()
+      dragTaget.points[dragTaget.i] = [x, y]
+      shape.setAttr('points', dragTaget.points)
+      layer.batchDraw()
+    })
+    stage.on('mouseup', function () {
+      const {x, y} = stage.getPointerPosition()
+      if (!canPaint) return
+      if (canDrag) {
+        canDrag = false
+        shape.setAttr('closure', true)
+        return layer.batchDraw()
+      }
+      canDrag = false
+      shape.setAttr('points', [...shape.getAttr('points'), [x, y]])
+      layer.batchDraw()
     })
     layer.add(shape)
-    layer.draw()
+    layer.batchDraw()
     function clone () {
-      console.log(shape.getAttr('points'))
-      // const cloneShape = shape.clone()
-      // layer.add(cloneShape)
-      // layer.draw()
+      canPaint = !canPaint
     }
   </script>
 </body>
